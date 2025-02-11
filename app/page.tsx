@@ -31,7 +31,7 @@ export default function Home() {
       return;
     }
     setSecondsLeft(minutes * 60);
-    setIsPaused(false); // 새 타이머 시작 시 일시정지 상태 해제
+    setIsPaused(false); // 타이머 시작 시 일시정지 상태 해제
   };
 
   const pauseTimer = () => {
@@ -40,6 +40,14 @@ export default function Home() {
 
   const resumeTimer = () => {
     setIsPaused(false);
+  };
+
+  // 타이머 리셋 함수: 모든 상태를 초기화
+  const resetTimer = () => {
+    setSecondsLeft(null);
+    setIsPaused(false);
+    // 필요하다면 minutes 상태도 초기화할 수 있음
+    // setMinutes("");
   };
 
   const triggerNotification = () => {
@@ -92,8 +100,6 @@ export default function Home() {
             <p className="mt-4 text-lg font-semibold text-green-800">
               남은 시간: {formatTime(secondsLeft)}
             </p>
-
-            {/* 일시정지 / 재시작 버튼 */}
             <div className="mt-4 flex justify-center gap-2">
               {!isPaused ? (
                 <button
@@ -110,6 +116,12 @@ export default function Home() {
                   재시작
                 </button>
               )}
+              <button
+                onClick={resetTimer}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-300"
+              >
+                리셋
+              </button>
             </div>
           </>
         )}
