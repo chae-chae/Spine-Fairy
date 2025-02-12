@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link"; // Link 컴포넌트 임포트
 
 export default function Home() {
   const [minutes, setMinutes] = useState<number | "">("");
@@ -31,7 +32,7 @@ export default function Home() {
       return;
     }
     setSecondsLeft(minutes * 60);
-    setIsPaused(false); // 타이머 시작 시 일시정지 상태 해제
+    setIsPaused(false);
   };
 
   const pauseTimer = () => {
@@ -42,22 +43,21 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // 타이머 리셋 함수: 모든 상태를 초기화
   const resetTimer = () => {
     setSecondsLeft(null);
     setIsPaused(false);
-    // 필요하다면 minutes 상태도 초기화할 수 있음
-    // setMinutes("");
   };
 
   const triggerNotification = () => {
+    const message =
+      localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "granted") {
-        new Notification("Spine Fairy 🧚‍♂️", { body: "바로 앉으세요! 🪑" });
+        new Notification("Spine Fairy 🧚‍♂️", { body: message });
       } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {
-            new Notification("Spine Fairy 🧚‍♂️", { body: "바로 앉으세요! 🪑" });
+            new Notification("Spine Fairy 🧚‍♂️", { body: message });
           }
         });
       }
@@ -125,6 +125,15 @@ export default function Home() {
             </div>
           </>
         )}
+      </div>
+
+      {/* 사용자 맞춤 설정 페이지로 이동하는 버튼 */}
+      <div className="mt-6">
+        <Link href="/settings">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+            사용자 맞춤 설정
+          </button>
+        </Link>
       </div>
 
       {showModal && (
