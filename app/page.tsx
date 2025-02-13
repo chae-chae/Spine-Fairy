@@ -1,11 +1,66 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link"; // Link 컴포넌트 임포트
+import Link from "next/link";
+
+// 원형 진행바 컴포넌트
+function CircularProgressBar({
+  secondsLeft,
+  initialSeconds,
+}: {
+  secondsLeft: number;
+  initialSeconds: number;
+}) {
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const progress = (initialSeconds - secondsLeft) / initialSeconds;
+  const offset = circumference - progress * circumference;
+
+  return (
+    <svg className="w-24 h-24 mx-auto" viewBox="0 0 100 100">
+      {/* 배경 원 */}
+      <circle
+        className="text-green-300"
+        stroke="currentColor"
+        strokeWidth="8"
+        fill="transparent"
+        r={radius}
+        cx="50"
+        cy="50"
+      />
+      {/* 진행 원 */}
+      <circle
+        className="text-green-700"
+        stroke="currentColor"
+        strokeWidth="8"
+        fill="transparent"
+        r={radius}
+        cx="50"
+        cy="50"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform="rotate(-90 50 50)"
+      />
+      {/* 중앙 텍스트 */}
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dy=".3em"
+        className="text-green-800 font-bold text-lg"
+      >
+        {Math.floor(secondsLeft / 60)}:
+        {(secondsLeft % 60).toString().padStart(2, "0")}
+      </text>
+    </svg>
+  );
+}
 
 export default function Home() {
   const [minutes, setMinutes] = useState<number | "">("");
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [initialSeconds, setInitialSeconds] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -31,7 +86,9 @@ export default function Home() {
       alert("1분 이상 입력해주세요!");
       return;
     }
-    setSecondsLeft(minutes * 60);
+    const secs = minutes * 60;
+    setInitialSeconds(secs);
+    setSecondsLeft(secs);
     setIsPaused(false);
   };
 
@@ -45,6 +102,7 @@ export default function Home() {
 
   const resetTimer = () => {
     setSecondsLeft(null);
+    setInitialSeconds(null);
     setIsPaused(false);
   };
 
@@ -62,13 +120,6 @@ export default function Home() {
         });
       }
     }
-  };
-
-  const formatTime = (seconds: number | null) => {
-    if (seconds === null) return "00:00";
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
   return (
@@ -95,11 +146,15 @@ export default function Home() {
           설정하기
         </button>
 
-        {secondsLeft !== null && (
+        {secondsLeft !== null && initialSeconds !== null && (
           <>
-            <p className="mt-4 text-lg font-semibold text-green-800">
-              남은 시간: {formatTime(secondsLeft)}
-            </p>
+            {/* 원형 진행바로 남은 시간 시각적 표시 */}
+            <div className="mt-4">
+              <CircularProgressBar
+                secondsLeft={secondsLeft}
+                initialSeconds={initialSeconds}
+              />
+            </div>
             <div className="mt-4 flex justify-center gap-2">
               {!isPaused ? (
                 <button
@@ -127,7 +182,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* 사용자 맞춤 설정 페이지로 이동하는 버튼 */}
       <div className="mt-6">
         <Link href="/settings">
           <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
