@@ -106,9 +106,35 @@ export default function Home() {
     setIsPaused(false);
   };
 
+  // const triggerNotification = () => {
+  //   const message =
+  //     localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
+  //   if (typeof window !== "undefined" && "Notification" in window) {
+  //     if (Notification.permission === "granted") {
+  //       new Notification("Spine Fairy 🧚‍♂️", { body: message });
+  //     } else if (Notification.permission !== "denied") {
+  //       Notification.requestPermission().then((permission) => {
+  //         if (permission === "granted") {
+  //           new Notification("Spine Fairy 🧚‍♂️", { body: message });
+  //         }
+  //       });
+  //     }
+  //   }
+  // };
+
   const triggerNotification = () => {
     const message =
       localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
+
+    // 알림 히스토리 기록 추가
+    const now = new Date().toISOString();
+    const historyEntry = { time: now, message };
+    const historyString = localStorage.getItem("notificationHistory");
+    const history = historyString ? JSON.parse(historyString) : [];
+    history.push(historyEntry);
+    localStorage.setItem("notificationHistory", JSON.stringify(history));
+
+    // 브라우저 알림 실행
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "granted") {
         new Notification("Spine Fairy 🧚‍♂️", { body: message });
@@ -129,6 +155,7 @@ export default function Home() {
       </h1>
 
       <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300">
+        {/* 기존 타이머 설정 UI */}
         <label className="block text-lg font-medium text-green-700 mb-2">
           알림 받을 시간 (분)
         </label>
@@ -148,7 +175,7 @@ export default function Home() {
 
         {secondsLeft !== null && initialSeconds !== null && (
           <>
-            {/* 원형 진행바로 남은 시간 시각적 표시 */}
+            {/* 원형 진행바 및 타이머 제어 UI */}
             <div className="mt-4">
               <CircularProgressBar
                 secondsLeft={secondsLeft}
@@ -182,10 +209,16 @@ export default function Home() {
         )}
       </div>
 
-      <div className="mt-6">
+      {/* 하단에 설정 및 히스토리 페이지로 이동하는 버튼 추가 */}
+      <div className="mt-6 flex gap-4">
         <Link href="/settings">
           <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
             사용자 맞춤 설정
+          </button>
+        </Link>
+        <Link href="/history">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+            알림 히스토리
           </button>
         </Link>
       </div>
