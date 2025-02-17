@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-// 원형 진행바 컴포넌트
+// 원형 진행바 컴포넌트 (이전 코드와 동일)
 function CircularProgressBar({
   secondsLeft,
   initialSeconds,
@@ -18,7 +18,6 @@ function CircularProgressBar({
 
   return (
     <svg className="w-24 h-24 mx-auto" viewBox="0 0 100 100">
-      {/* 배경 원 */}
       <circle
         className="text-green-300"
         stroke="currentColor"
@@ -28,7 +27,6 @@ function CircularProgressBar({
         cx="50"
         cy="50"
       />
-      {/* 진행 원 */}
       <circle
         className="text-green-700"
         stroke="currentColor"
@@ -42,7 +40,6 @@ function CircularProgressBar({
         strokeLinecap="round"
         transform="rotate(-90 50 50)"
       />
-      {/* 중앙 텍스트 */}
       <text
         x="50%"
         y="50%"
@@ -63,6 +60,16 @@ export default function Home() {
   const [initialSeconds, setInitialSeconds] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // 다크 모드 상태가 변경될 때 <html> 태그에 "dark" 클래스 추가/제거
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -106,27 +113,9 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // const triggerNotification = () => {
-  //   const message =
-  //     localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
-  //   if (typeof window !== "undefined" && "Notification" in window) {
-  //     if (Notification.permission === "granted") {
-  //       new Notification("Spine Fairy 🧚‍♂️", { body: message });
-  //     } else if (Notification.permission !== "denied") {
-  //       Notification.requestPermission().then((permission) => {
-  //         if (permission === "granted") {
-  //           new Notification("Spine Fairy 🧚‍♂️", { body: message });
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
-
   const triggerNotification = () => {
     const message =
       localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
-
-    // 알림 히스토리 기록 추가
     const now = new Date().toISOString();
     const historyEntry = { time: now, message };
     const historyString = localStorage.getItem("notificationHistory");
@@ -134,7 +123,6 @@ export default function Home() {
     history.push(historyEntry);
     localStorage.setItem("notificationHistory", JSON.stringify(history));
 
-    // 브라우저 알림 실행
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "granted") {
         new Notification("Spine Fairy 🧚‍♂️", { body: message });
@@ -149,14 +137,13 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-green-600 p-6">
-      <h1 className="text-5xl font-bold text-green-900 mb-8 drop-shadow-lg">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-green-600 p-6 dark:from-gray-900 dark:to-gray-800">
+      <h1 className="text-5xl font-bold text-green-900 mb-8 drop-shadow-lg dark:text-gray-200">
         Spine Fairy 🧚‍♂️
       </h1>
 
-      <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300">
-        {/* 기존 타이머 설정 UI */}
-        <label className="block text-lg font-medium text-green-700 mb-2">
+      <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300 dark:bg-gray-800 dark:border-gray-600">
+        <label className="block text-lg font-medium text-green-700 mb-2 dark:text-gray-300">
           알림 받을 시간 (분)
         </label>
         <input
@@ -164,7 +151,7 @@ export default function Home() {
           min="1"
           value={minutes}
           onChange={(e) => setMinutes(Number(e.target.value))}
-          className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500"
         />
         <button
           onClick={startTimer}
@@ -175,7 +162,6 @@ export default function Home() {
 
         {secondsLeft !== null && initialSeconds !== null && (
           <>
-            {/* 원형 진행바 및 타이머 제어 UI */}
             <div className="mt-4">
               <CircularProgressBar
                 secondsLeft={secondsLeft}
@@ -209,7 +195,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* 하단에 설정 및 히스토리 페이지로 이동하는 버튼 추가 */}
       <div className="mt-6 flex gap-4">
         <Link href="/settings">
           <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
@@ -221,12 +206,18 @@ export default function Home() {
             알림 히스토리
           </button>
         </Link>
+        <button
+          onClick={() => setDarkMode((prev) => !prev)}
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors duration-300"
+        >
+          {darkMode ? "라이트 모드" : "다크 모드"}
+        </button>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50">
-          <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400">
-            <p className="text-xl font-bold text-green-800">
+        <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-black dark:bg-opacity-70">
+          <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-gray-800 dark:border-gray-600">
+            <p className="text-xl font-bold text-green-800 dark:text-gray-200">
               🪑 바로 앉으세요!
             </p>
             <button
