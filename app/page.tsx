@@ -137,13 +137,13 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-green-600 p-6 dark:from-gray-900 dark:to-gray-800">
-      <h1 className="text-5xl font-bold text-green-900 mb-8 drop-shadow-lg dark:text-gray-200">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-green-600 p-6 dark:from-green-900 dark:to-green-800">
+      <h1 className="text-5xl font-bold text-green-900 mb-8 drop-shadow-lg dark:text-green-100">
         Spine Fairy 🧚‍♂️
       </h1>
 
-      <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300 dark:bg-gray-800 dark:border-gray-600">
-        <label className="block text-lg font-medium text-green-700 mb-2 dark:text-gray-300">
+      <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300 dark:bg-green-800 dark:border-green-600">
+        <label className="block text-lg font-medium text-green-700 mb-2 dark:text-green-200">
           알림 받을 시간 (분)
         </label>
         <input
@@ -151,7 +151,7 @@ export default function Home() {
           min="1"
           value={minutes}
           onChange={(e) => setMinutes(Number(e.target.value))}
-          className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-500"
+          className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
         />
         <button
           onClick={startTimer}
@@ -215,9 +215,9 @@ export default function Home() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-black dark:bg-opacity-70">
-          <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-gray-800 dark:border-gray-600">
-            <p className="text-xl font-bold text-green-800 dark:text-gray-200">
+        <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-green-800 dark:bg-opacity-70">
+          <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-green-800 dark:border-green-600">
+            <p className="text-xl font-bold text-green-800 dark:text-green-100">
               🪑 바로 앉으세요!
             </p>
             <button
