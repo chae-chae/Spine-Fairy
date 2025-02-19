@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-// 원형 진행바 컴포넌트 (이전 코드와 동일)
+// 원형 진행바 컴포넌트 (변경 없음)
 function CircularProgressBar({
   secondsLeft,
   initialSeconds,
@@ -62,7 +62,7 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  // 다크 모드 상태가 변경될 때 <html> 태그에 "dark" 클래스 추가/제거
+  // 다크 모드 상태 업데이트
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -71,6 +71,7 @@ export default function Home() {
     }
   }, [darkMode]);
 
+  // 타이머 카운트다운 로직
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
 
@@ -110,6 +111,16 @@ export default function Home() {
   const resetTimer = () => {
     setSecondsLeft(null);
     setInitialSeconds(null);
+    setIsPaused(false);
+  };
+
+  // 스누즈 기능: 기본 스누즈 시간 5분 (변경 가능)
+  const snoozeTimer = () => {
+    setShowModal(false);
+    const snoozeMinutes = 5;
+    const snoozeSeconds = snoozeMinutes * 60;
+    setInitialSeconds(snoozeSeconds);
+    setSecondsLeft(snoozeSeconds);
     setIsPaused(false);
   };
 
@@ -220,12 +231,20 @@ export default function Home() {
             <p className="text-xl font-bold text-green-800 dark:text-green-100">
               🪑 바로 앉으세요!
             </p>
-            <button
-              onClick={() => setShowModal(false)}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-300"
-            >
-              닫기
-            </button>
+            <div className="mt-4 flex justify-center gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-300"
+              >
+                닫기
+              </button>
+              <button
+                onClick={snoozeTimer}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300"
+              >
+                스누즈
+              </button>
+            </div>
           </div>
         </div>
       )}
