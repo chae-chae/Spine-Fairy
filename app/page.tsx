@@ -62,7 +62,7 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  // 다크 모드 상태 업데이트
+  // 다크 모드 적용
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -114,7 +114,7 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // 스누즈 기능: 기본 스누즈 시간 5분 (변경 가능)
+  // 스누즈 기능: 기본 스누즈 시간 5분
   const snoozeTimer = () => {
     setShowModal(false);
     const snoozeMinutes = 5;
@@ -124,6 +124,21 @@ export default function Home() {
     setIsPaused(false);
   };
 
+  // 자세 피드백 기록 함수
+  const recordFeedback = (feedback: "correct" | "incorrect") => {
+    const now = new Date().toISOString();
+    const feedbackEntry = { time: now, feedback };
+    const storedFeedback = localStorage.getItem("postureFeedbackHistory");
+    const feedbackHistory = storedFeedback ? JSON.parse(storedFeedback) : [];
+    feedbackHistory.push(feedbackEntry);
+    localStorage.setItem(
+      "postureFeedbackHistory",
+      JSON.stringify(feedbackHistory)
+    );
+    setShowModal(false);
+  };
+
+  // 알림과 함께 히스토리 기록
   const triggerNotification = () => {
     const message =
       localStorage.getItem("customAlertMessage") || "바로 앉으세요! 🪑";
@@ -231,18 +246,33 @@ export default function Home() {
             <p className="text-xl font-bold text-green-800 dark:text-green-100">
               🪑 바로 앉으세요!
             </p>
-            <div className="mt-4 flex justify-center gap-4">
+            <p className="mt-2 text-md text-green-800 dark:text-green-100">
+              자세를 교정하셨나요?
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-4">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => recordFeedback("correct")}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-300"
               >
-                닫기
+                네, 잘했어요
+              </button>
+              <button
+                onClick={() => recordFeedback("incorrect")}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300"
+              >
+                아니요
               </button>
               <button
                 onClick={snoozeTimer}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300"
               >
                 스누즈
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors duration-300"
+              >
+                닫기
               </button>
             </div>
           </div>
