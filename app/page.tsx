@@ -221,7 +221,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="mt-6 flex gap-4">
+      <div className="mt-6 flex gap-4 flex-wrap justify-center">
         <Link href="/settings">
           <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
             사용자 맞춤 설정
@@ -230,6 +230,11 @@ export default function Home() {
         <Link href="/history">
           <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
             알림 히스토리
+          </button>
+        </Link>
+        <Link href="/statistics">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+            피드백 통계
           </button>
         </Link>
         <button
