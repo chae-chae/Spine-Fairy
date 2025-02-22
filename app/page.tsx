@@ -62,6 +62,10 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  // 반복 알림 관련 상태
+  const [recurringEnabled, setRecurringEnabled] = useState(false);
+  const [recurringInterval, setRecurringInterval] = useState<number>(10); // 기본 10분
+
   // 다크 모드 적용
   useEffect(() => {
     if (darkMode) {
@@ -124,7 +128,16 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // 자세 피드백 기록 함수
+  // 반복 알림 기능: 반복 간격으로 타이머 재시작
+  const startRecurringTimer = () => {
+    setShowModal(false);
+    const secs = recurringInterval * 60;
+    setInitialSeconds(secs);
+    setSecondsLeft(secs);
+    setIsPaused(false);
+  };
+
+  // 자세 피드백 기록 함수 (이전 코드와 동일)
   const recordFeedback = (feedback: "correct" | "incorrect") => {
     const now = new Date().toISOString();
     const feedbackEntry = { time: now, feedback };
@@ -185,6 +198,33 @@ export default function Home() {
         >
           설정하기
         </button>
+
+        {/* 반복 알림 설정 UI */}
+        <div className="mt-4 text-left">
+          <label className="inline-flex items-center text-green-700 dark:text-green-200">
+            <input
+              type="checkbox"
+              checked={recurringEnabled}
+              onChange={(e) => setRecurringEnabled(e.target.checked)}
+              className="form-checkbox h-5 w-5 text-green-600"
+            />
+            <span className="ml-2">반복 알림 활성화</span>
+          </label>
+          {recurringEnabled && (
+            <div className="mt-2">
+              <label className="block text-green-700 dark:text-green-200 text-sm">
+                반복 간격 (분)
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={recurringInterval}
+                onChange={(e) => setRecurringInterval(Number(e.target.value))}
+                className="w-full p-1 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
+              />
+            </div>
+          )}
+        </div>
 
         {secondsLeft !== null && initialSeconds !== null && (
           <>
@@ -273,6 +313,14 @@ export default function Home() {
               >
                 스누즈
               </button>
+              {recurringEnabled && (
+                <button
+                  onClick={startRecurringTimer}
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors duration-300"
+                >
+                  반복 알림
+                </button>
+              )}
               <button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors duration-300"
