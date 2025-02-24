@@ -66,7 +66,22 @@ export default function Home() {
   const [recurringEnabled, setRecurringEnabled] = useState(false);
   const [recurringInterval, setRecurringInterval] = useState<number>(10); // 기본 10분
 
-  // 다크 모드 적용
+  // **추가: 다양한 테마 옵션 상태**
+  // 사용 가능한 테마: "default", "forest", "ocean", "sunset"
+  const [theme, setTheme] = useState("default");
+  const themes = ["default", "forest", "ocean", "sunset"];
+  const themeClasses: { [key: string]: string } = {
+    default:
+      "bg-gradient-to-br from-green-200 to-green-600 dark:from-green-900 dark:to-green-800",
+    forest:
+      "bg-gradient-to-br from-green-300 to-green-700 dark:from-green-800 dark:to-green-900",
+    ocean:
+      "bg-gradient-to-br from-blue-200 to-blue-500 dark:from-blue-800 dark:to-blue-900",
+    sunset:
+      "bg-gradient-to-br from-yellow-200 to-pink-500 dark:from-purple-800 dark:to-pink-900",
+  };
+
+  // 다크 모드 적용 (darkMode 상태와 별개로 테마 옵션은 배경에 반영)
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -137,7 +152,7 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // 자세 피드백 기록 함수 (이전 코드와 동일)
+  // 자세 피드백 기록 함수
   const recordFeedback = (feedback: "correct" | "incorrect") => {
     const now = new Date().toISOString();
     const feedbackEntry = { time: now, feedback };
@@ -175,8 +190,27 @@ export default function Home() {
     }
   };
 
+  // **테마 변경: 버튼 클릭 시 다음 테마로 순환**
+  const changeTheme = () => {
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+    // 필요시 localStorage에 저장해서 유지 가능
+    localStorage.setItem("selectedTheme", themes[nextIndex]);
+  };
+
+  // 페이지가 마운트될 때 localStorage에서 선택된 테마 불러오기
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("selectedTheme");
+    if (storedTheme && themes.includes(storedTheme)) {
+      setTheme(storedTheme);
+    }
+  }, []);
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-200 to-green-600 p-6 dark:from-green-900 dark:to-green-800">
+    <main
+      className={`flex flex-col items-center justify-center min-h-screen ${themeClasses[theme]} p-6`}
+    >
       <h1 className="text-5xl font-bold text-green-900 mb-8 drop-shadow-lg dark:text-green-100">
         Spine Fairy 🧚‍♂️
       </h1>
@@ -282,6 +316,12 @@ export default function Home() {
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors duration-300"
         >
           {darkMode ? "라이트 모드" : "다크 모드"}
+        </button>
+        <button
+          onClick={changeTheme}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors duration-300"
+        >
+          테마 변경
         </button>
       </div>
 
