@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-// 원형 진행바 컴포넌트 (변경 없음)
+// 원형 진행바 컴포넌트 (애니메이션 효과 추가)
 function CircularProgressBar({
   secondsLeft,
   initialSeconds,
@@ -18,6 +18,7 @@ function CircularProgressBar({
 
   return (
     <svg className="w-24 h-24 mx-auto" viewBox="0 0 100 100">
+      {/* 배경 원 */}
       <circle
         className="text-green-300"
         stroke="currentColor"
@@ -27,8 +28,9 @@ function CircularProgressBar({
         cx="50"
         cy="50"
       />
+      {/* 진행 원 - transition 효과 추가 */}
       <circle
-        className="text-green-700"
+        className="text-green-700 transition-all duration-500"
         stroke="currentColor"
         strokeWidth="8"
         fill="transparent"
@@ -66,8 +68,7 @@ export default function Home() {
   const [recurringEnabled, setRecurringEnabled] = useState(false);
   const [recurringInterval, setRecurringInterval] = useState<number>(10); // 기본 10분
 
-  // **추가: 다양한 테마 옵션 상태**
-  // 사용 가능한 테마: "default", "forest", "ocean", "sunset"
+  // 다양한 테마 옵션 (이전 코드와 동일)
   const [theme, setTheme] = useState("default");
   const themes = ["default", "forest", "ocean", "sunset"];
   const themeClasses: { [key: string]: string } = {
@@ -81,7 +82,7 @@ export default function Home() {
       "bg-gradient-to-br from-yellow-200 to-pink-500 dark:from-purple-800 dark:to-pink-900",
   };
 
-  // 다크 모드 적용 (darkMode 상태와 별개로 테마 옵션은 배경에 반영)
+  // 다크 모드 적용
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -143,7 +144,7 @@ export default function Home() {
     setIsPaused(false);
   };
 
-  // 반복 알림 기능: 반복 간격으로 타이머 재시작
+  // 반복 알림 기능
   const startRecurringTimer = () => {
     setShowModal(false);
     const secs = recurringInterval * 60;
@@ -190,16 +191,15 @@ export default function Home() {
     }
   };
 
-  // **테마 변경: 버튼 클릭 시 다음 테마로 순환**
+  // 테마 변경
   const changeTheme = () => {
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
-    // 필요시 localStorage에 저장해서 유지 가능
     localStorage.setItem("selectedTheme", themes[nextIndex]);
   };
 
-  // 페이지가 마운트될 때 localStorage에서 선택된 테마 불러오기
+  // 페이지가 마운트될 때 저장된 테마 불러오기
   useEffect(() => {
     const storedTheme = localStorage.getItem("selectedTheme");
     if (storedTheme && themes.includes(storedTheme)) {
@@ -228,7 +228,7 @@ export default function Home() {
         />
         <button
           onClick={startTimer}
-          className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors duration-300"
+          className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-transform duration-300 hover:scale-105"
         >
           설정하기
         </button>
@@ -272,21 +272,21 @@ export default function Home() {
               {!isPaused ? (
                 <button
                   onClick={pauseTimer}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors duration-300"
+                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform duration-300 hover:scale-105"
                 >
                   일시정지
                 </button>
               ) : (
                 <button
                   onClick={resumeTimer}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300"
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform duration-300 hover:scale-105"
                 >
                   재시작
                 </button>
               )}
               <button
                 onClick={resetTimer}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-300"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-transform duration-300 hover:scale-105"
               >
                 리셋
               </button>
@@ -297,29 +297,29 @@ export default function Home() {
 
       <div className="mt-6 flex gap-4 flex-wrap justify-center">
         <Link href="/settings">
-          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-transform duration-300 hover:scale-105">
             사용자 맞춤 설정
           </button>
         </Link>
         <Link href="/history">
-          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-transform duration-300 hover:scale-105">
             알림 히스토리
           </button>
         </Link>
         <Link href="/statistics">
-          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors duration-300">
+          <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-transform duration-300 hover:scale-105">
             피드백 통계
           </button>
         </Link>
         <button
           onClick={() => setDarkMode((prev) => !prev)}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors duration-300"
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-transform duration-300 hover:scale-105"
         >
           {darkMode ? "라이트 모드" : "다크 모드"}
         </button>
         <button
           onClick={changeTheme}
-          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors duration-300"
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-transform duration-300 hover:scale-105"
         >
           테마 변경
         </button>
@@ -327,7 +327,7 @@ export default function Home() {
 
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-green-800 dark:bg-opacity-70">
-          <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-green-800 dark:border-green-600">
+          <div className="animate-fadeIn bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-green-800 dark:border-green-600">
             <p className="text-xl font-bold text-green-800 dark:text-green-100">
               🪑 바로 앉으세요!
             </p>
@@ -337,33 +337,33 @@ export default function Home() {
             <div className="mt-4 flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => recordFeedback("correct")}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors duration-300"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-transform duration-300 hover:scale-105"
               >
                 네, 잘했어요
               </button>
               <button
                 onClick={() => recordFeedback("incorrect")}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300"
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-transform duration-300 hover:scale-105"
               >
                 아니요
               </button>
               <button
                 onClick={snoozeTimer}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-transform duration-300 hover:scale-105"
               >
                 스누즈
               </button>
               {recurringEnabled && (
                 <button
                   onClick={startRecurringTimer}
-                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors duration-300"
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-transform duration-300 hover:scale-105"
                 >
                   반복 알림
                 </button>
               )}
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors duration-300"
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-transform duration-300 hover:scale-105"
               >
                 닫기
               </button>
