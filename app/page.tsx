@@ -311,6 +311,11 @@ export default function Home() {
             피드백 통계
           </button>
         </Link>
+        <Link href="/rewards">
+          <button className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-transform duration-300 hover:scale-105">
+            보상 확인
+          </button>
+        </Link>
         <button
           onClick={() => setDarkMode((prev) => !prev)}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-transform duration-300 hover:scale-105"
