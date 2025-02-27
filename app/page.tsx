@@ -311,6 +311,11 @@ export default function Home() {
             피드백 통계
           </button>
         </Link>
+        <Link href="/tips">
+          <button className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-transform duration-300 hover:scale-105">
+            자세 개선 팁
+          </button>
+        </Link>
         <Link href="/rewards">
           <button className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-transform duration-300 hover:scale-105">
             보상 확인
