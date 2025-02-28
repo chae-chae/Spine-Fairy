@@ -321,6 +321,11 @@ export default function Home() {
             보상 확인
           </button>
         </Link>
+        <Link href="/challenge">
+          <button className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
+            자세 챌린지
+          </button>
+        </Link>
         <button
           onClick={() => setDarkMode((prev) => !prev)}
           className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-transform duration-300 hover:scale-105"
