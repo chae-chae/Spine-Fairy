@@ -82,6 +82,39 @@ export default function Home() {
       "bg-gradient-to-br from-yellow-200 to-pink-500 dark:from-purple-800 dark:to-pink-900",
   };
 
+  // 서비스 워커 등록 (마운트 시)
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log(
+            "Service Worker registered with scope:",
+            registration.scope
+          );
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
+  }, []);
+
+  // 푸시 알림 테스트 함수
+  const sendPushNotification = async () => {
+    if (Notification.permission !== "granted") {
+      await Notification.requestPermission();
+    }
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (registration) {
+      registration.showNotification("Spine Fairy 푸시 알림", {
+        body: "이것은 테스트 푸시 알림입니다.",
+        icon: "/icon.png",
+      });
+    } else {
+      console.error("Service Worker registration not found.");
+    }
+  };
+
   // 다크 모드 적용
   useEffect(() => {
     if (darkMode) {
@@ -324,6 +357,19 @@ export default function Home() {
         <Link href="/challenge">
           <button className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-transform duration-300 hover:scale-105">
             자세 챌린지
+          </button>
+        </Link>
+        {/* 푸시 알림 테스트 버튼 */}
+        <button
+          onClick={sendPushNotification}
+          className="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600 transition-transform duration-300"
+        >
+          푸시 알림 테스트
+        </button>
+        {/* analytics 페이지 버튼 */}
+        <Link href="/analytics">
+          <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform duration-300">
+            데이터 분석
           </button>
         </Link>
         <button
