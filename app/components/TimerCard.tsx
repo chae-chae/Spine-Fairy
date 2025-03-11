@@ -17,6 +17,21 @@ export default function TimerCard() {
       }, 1000);
     } else if (secondsLeft === 0) {
       setShowModal(true);
+
+      // 자동 푸시 알림 활성화 옵션 확인
+      const autoPush = localStorage.getItem("autoPushNotification");
+      if (autoPush && JSON.parse(autoPush) === true) {
+        if (Notification.permission === "granted") {
+          navigator.serviceWorker.getRegistration().then((registration) => {
+            if (registration) {
+              registration.showNotification("Spine Fairy 푸시 알림", {
+                body: "타이머 종료: 올바른 자세를 유지하세요!",
+                icon: "/icon.png", // 아이콘 경로 확인
+              });
+            }
+          });
+        }
+      }
     }
     return () => {
       if (timer) {
@@ -54,7 +69,8 @@ export default function TimerCard() {
     setIsPaused(false);
   };
 
-  // 자세 피드백 기록 함수
+  // 기존 자세 피드백 기록 함수 등은 그대로 유지
+
   const recordFeedback = (feedback: "correct" | "incorrect") => {
     const now = new Date().toISOString();
     const feedbackEntry = { time: now, feedback };
@@ -82,7 +98,7 @@ export default function TimerCard() {
       />
       <button
         onClick={startTimer}
-        className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-transform duration-300 hover:scale-105"
+        className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-transform duration-300"
       >
         설정하기
       </button>
@@ -98,21 +114,21 @@ export default function TimerCard() {
             {!isPaused ? (
               <button
                 onClick={pauseTimer}
-                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform duration-300"
               >
                 일시정지
               </button>
             ) : (
               <button
                 onClick={resumeTimer}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform duration-300"
               >
                 재시작
               </button>
             )}
             <button
               onClick={resetTimer}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-transform duration-300 hover:scale-105"
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-transform duration-300"
             >
               리셋
             </button>
@@ -132,25 +148,25 @@ export default function TimerCard() {
             <div className="mt-4 flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => recordFeedback("correct")}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-transform duration-300"
               >
                 네, 잘했어요
               </button>
               <button
                 onClick={() => recordFeedback("incorrect")}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-transform duration-300"
               >
                 아니요
               </button>
               <button
                 onClick={snoozeTimer}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-transform duration-300"
               >
                 스누즈
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-transform duration-300 hover:scale-105"
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-transform duration-300"
               >
                 닫기
               </button>
