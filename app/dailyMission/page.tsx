@@ -5,30 +5,39 @@ import Link from "next/link";
 export default function DailyMissionPage() {
   const [checkedIn, setCheckedIn] = useState(false);
   const [today, setToday] = useState("");
+  const [points, setPoints] = useState(0);
 
   useEffect(() => {
     const todayStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
     setToday(todayStr);
-    const checkInHistory = localStorage.getItem("dailyCheckInHistory");
-    if (checkInHistory) {
-      const history = JSON.parse(checkInHistory);
+    const storedHistory = localStorage.getItem("dailyCheckInHistory");
+    if (storedHistory) {
+      const history = JSON.parse(storedHistory);
       if (history.includes(todayStr)) {
         setCheckedIn(true);
       }
+    }
+    const storedPoints = localStorage.getItem("dailyPoints");
+    if (storedPoints) {
+      setPoints(parseInt(storedPoints, 10));
     }
   }, []);
 
   const handleCheckIn = () => {
     if (!checkedIn) {
       const todayStr = today;
-      const checkInHistory = localStorage.getItem("dailyCheckInHistory");
-      let history = checkInHistory ? JSON.parse(checkInHistory) : [];
+      const storedHistory = localStorage.getItem("dailyCheckInHistory");
+      let history = storedHistory ? JSON.parse(storedHistory) : [];
       if (!history.includes(todayStr)) {
         history.push(todayStr);
         localStorage.setItem("dailyCheckInHistory", JSON.stringify(history));
-        setCheckedIn(true);
-        alert("오늘의 미션 완료! 축하합니다!");
       }
+      // 체크인 시 10포인트 적립
+      const newPoints = points + 10;
+      setPoints(newPoints);
+      localStorage.setItem("dailyPoints", newPoints.toString());
+      setCheckedIn(true);
+      alert("오늘의 미션 완료! 10포인트 획득!");
     }
   };
 
@@ -50,6 +59,14 @@ export default function DailyMissionPage() {
         >
           {checkedIn ? "체크인 완료됨" : "오늘 체크인"}
         </button>
+        <p className="mt-4 text-orange-700 dark:text-orange-100">
+          현재 포인트: <span className="font-bold">{points}</span>
+        </p>
+        {points >= 100 && (
+          <p className="mt-2 text-xl text-orange-800 dark:text-orange-200 font-semibold">
+            축하합니다! 100포인트 달성!
+          </p>
+        )}
       </div>
       <div className="mt-6">
         <Link href="/">
