@@ -22,6 +22,17 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [theme, setTheme] = useState("default");
 
+  // 자동 다크모드 전환: 예를 들어, 오후 7시 이후 또는 오전 6시 이전이면 다크모드 활성화
+  useEffect(() => {
+    const now = new Date();
+    const hour = now.getHours();
+    if (hour >= 19 || hour < 6) {
+      setDarkMode(true);
+    } else {
+      setDarkMode(false);
+    }
+  }, []);
+
   const changeTheme = () => {
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
