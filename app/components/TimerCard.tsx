@@ -1,14 +1,23 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CircularProgressBar from "./CircularProgressBar";
 
 export default function TimerCard() {
+  // 입력 필드 상태: 분과 초
   const [minutes, setMinutes] = useState<number | "">("");
+  const [seconds, setSeconds] = useState<number | "">("");
+
+  // 타이머 관련 상태
+  const [totalSeconds, setTotalSeconds] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
-  const [initialSeconds, setInitialSeconds] = useState<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [autoRepeat, setAutoRepeat] = useState(false);
 
+  // 소리 알림 재생을 위한 ref (public 폴더에 alarm.mp3 있어야 함)
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // 타이머 카운트다운 로직
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (secondsLeft !== null && secondsLeft > 0 && !isPaused) {
@@ -17,37 +26,33 @@ export default function TimerCard() {
       }, 1000);
     } else if (secondsLeft === 0) {
       setShowModal(true);
-
-      // 자동 푸시 알림 활성화 옵션 확인
-      const autoPush = localStorage.getItem("autoPushNotification");
-      if (autoPush && JSON.parse(autoPush) === true) {
-        if (Notification.permission === "granted") {
-          navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration) {
-              registration.showNotification("Spine Fairy 푸시 알림", {
-                body: "타이머 종료: 올바른 자세를 유지하세요!",
-                icon: "/icon.png", // 아이콘 경로 확인
-              });
-            }
-          });
-        }
+      // 소리 알림 재생
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+      // 자동 반복 옵션이 활성화된 경우, 3초 후 타이머 재시작
+      if (autoRepeat && totalSeconds) {
+        setTimeout(() => {
+          setSecondsLeft(totalSeconds);
+          setShowModal(false);
+        }, 3000);
       }
     }
     return () => {
-      if (timer) {
-        clearInterval(timer);
-      }
+      if (timer) clearInterval(timer);
     };
-  }, [secondsLeft, isPaused]);
+  }, [secondsLeft, isPaused, autoRepeat, totalSeconds]);
 
   const startTimer = () => {
-    if (!minutes || minutes <= 0) {
-      alert("1분 이상 입력해주세요!");
+    const mins = typeof minutes === "number" ? minutes : 0;
+    const secs = typeof seconds === "number" ? seconds : 0;
+    const total = mins * 60 + secs;
+    if (total <= 0) {
+      alert("시간을 0보다 크게 입력해주세요!");
       return;
     }
-    const secs = minutes * 60;
-    setInitialSeconds(secs);
-    setSecondsLeft(secs);
+    setTotalSeconds(total);
+    setSecondsLeft(total);
     setIsPaused(false);
   };
 
@@ -55,22 +60,20 @@ export default function TimerCard() {
   const resumeTimer = () => setIsPaused(false);
   const resetTimer = () => {
     setSecondsLeft(null);
-    setInitialSeconds(null);
+    setTotalSeconds(null);
     setIsPaused(false);
     setShowModal(false);
   };
 
   const snoozeTimer = () => {
     setShowModal(false);
-    const snoozeMinutes = 5;
-    const snoozeSeconds = snoozeMinutes * 60;
-    setInitialSeconds(snoozeSeconds);
-    setSecondsLeft(snoozeSeconds);
+    const snoozeTime = 5 * 60; // 5분 스누즈
+    setTotalSeconds(snoozeTime);
+    setSecondsLeft(snoozeTime);
     setIsPaused(false);
   };
 
-  // 기존 자세 피드백 기록 함수 등은 그대로 유지
-
+  // 기존 자세 피드백 기록 함수 유지
   const recordFeedback = (feedback: "correct" | "incorrect") => {
     const now = new Date().toISOString();
     const feedbackEntry = { time: now, feedback };
@@ -86,28 +89,51 @@ export default function TimerCard() {
 
   return (
     <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300 dark:bg-green-800 dark:border-green-600">
+      {/* 시간 입력: 분 */}
       <label className="block text-lg font-medium text-green-700 mb-2 dark:text-green-200">
-        알림 받을 시간 (분)
+        분
       </label>
       <input
         type="number"
-        min="1"
+        min="0"
         value={minutes}
         onChange={(e) => setMinutes(Number(e.target.value))}
         className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
       />
+      {/* 시간 입력: 초 */}
+      <label className="block text-lg font-medium text-green-700 mt-4 mb-2 dark:text-green-200">
+        초
+      </label>
+      <input
+        type="number"
+        min="0"
+        max="59"
+        value={seconds}
+        onChange={(e) => setSeconds(Number(e.target.value))}
+        className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
+      />
+      {/* 자동 반복 옵션 */}
+      <div className="mt-4 flex items-center justify-center gap-2">
+        <label className="text-green-700 dark:text-green-200">자동 반복</label>
+        <input
+          type="checkbox"
+          checked={autoRepeat}
+          onChange={(e) => setAutoRepeat(e.target.checked)}
+          className="form-checkbox h-5 w-5 text-green-600"
+        />
+      </div>
       <button
         onClick={startTimer}
         className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-transform duration-300"
       >
-        설정하기
+        시작하기
       </button>
-      {secondsLeft !== null && initialSeconds !== null && (
+      {secondsLeft !== null && totalSeconds !== null && (
         <>
           <div className="mt-4">
             <CircularProgressBar
               secondsLeft={secondsLeft}
-              initialSeconds={initialSeconds}
+              initialSeconds={totalSeconds}
             />
           </div>
           <div className="mt-4 flex justify-center gap-2">
@@ -135,12 +161,11 @@ export default function TimerCard() {
           </div>
         </>
       )}
-
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-green-800 dark:bg-opacity-70">
           <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-green-800 dark:border-green-600">
             <p className="text-xl font-bold text-green-800 dark:text-green-100">
-              🪑 바로 앉으세요!
+              타이머 종료!
             </p>
             <p className="mt-2 text-md text-green-800 dark:text-green-100">
               자세를 교정하셨나요?
@@ -174,6 +199,7 @@ export default function TimerCard() {
           </div>
         </div>
       )}
+      <audio ref={audioRef} src="/alarm.mp3" preload="auto" />
     </div>
   );
 }
