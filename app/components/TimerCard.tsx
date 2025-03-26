@@ -3,21 +3,16 @@ import { useState, useEffect, useRef } from "react";
 import CircularProgressBar from "./CircularProgressBar";
 
 export default function TimerCard() {
-  // 입력 필드 상태: 분과 초
   const [minutes, setMinutes] = useState<number | "">("");
   const [seconds, setSeconds] = useState<number | "">("");
-
-  // 타이머 관련 상태
   const [totalSeconds, setTotalSeconds] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [autoRepeat, setAutoRepeat] = useState(false);
 
-  // 소리 알림 재생을 위한 ref (public 폴더에 alarm.mp3 있어야 함)
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // 타이머 카운트다운 로직
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (secondsLeft !== null && secondsLeft > 0 && !isPaused) {
@@ -26,11 +21,22 @@ export default function TimerCard() {
       }, 1000);
     } else if (secondsLeft === 0) {
       setShowModal(true);
-      // 소리 알림 재생
       if (audioRef.current) {
         audioRef.current.play();
       }
-      // 자동 반복 옵션이 활성화된 경우, 3초 후 타이머 재시작
+      const autoPush = localStorage.getItem("autoPushNotification");
+      if (autoPush && JSON.parse(autoPush) === true) {
+        if (Notification.permission === "granted") {
+          navigator.serviceWorker.getRegistration().then((registration) => {
+            if (registration) {
+              registration.showNotification("Spine Fairy 푸시 알림", {
+                body: "타이머 종료: 올바른 자세를 유지하세요!",
+                icon: "/icon.png",
+              });
+            }
+          });
+        }
+      }
       if (autoRepeat && totalSeconds) {
         setTimeout(() => {
           setSecondsLeft(totalSeconds);
@@ -67,13 +73,12 @@ export default function TimerCard() {
 
   const snoozeTimer = () => {
     setShowModal(false);
-    const snoozeTime = 5 * 60; // 5분 스누즈
+    const snoozeTime = 5 * 60;
     setTotalSeconds(snoozeTime);
     setSecondsLeft(snoozeTime);
     setIsPaused(false);
   };
 
-  // 기존 자세 피드백 기록 함수 유지
   const recordFeedback = (feedback: "correct" | "incorrect") => {
     const now = new Date().toISOString();
     const feedbackEntry = { time: now, feedback };
@@ -89,7 +94,6 @@ export default function TimerCard() {
 
   return (
     <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-xl w-80 text-center border border-green-300 dark:bg-green-800 dark:border-green-600">
-      {/* 시간 입력: 분 */}
       <label className="block text-lg font-medium text-green-700 mb-2 dark:text-green-200">
         분
       </label>
@@ -99,8 +103,8 @@ export default function TimerCard() {
         value={minutes}
         onChange={(e) => setMinutes(Number(e.target.value))}
         className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
+        aria-label="분 입력"
       />
-      {/* 시간 입력: 초 */}
       <label className="block text-lg font-medium text-green-700 mt-4 mb-2 dark:text-green-200">
         초
       </label>
@@ -111,8 +115,8 @@ export default function TimerCard() {
         value={seconds}
         onChange={(e) => setSeconds(Number(e.target.value))}
         className="w-full p-2 border border-green-400 rounded focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:text-green-100 dark:border-green-600"
+        aria-label="초 입력"
       />
-      {/* 자동 반복 옵션 */}
       <div className="mt-4 flex items-center justify-center gap-2">
         <label className="text-green-700 dark:text-green-200">자동 반복</label>
         <input
@@ -120,11 +124,13 @@ export default function TimerCard() {
           checked={autoRepeat}
           onChange={(e) => setAutoRepeat(e.target.checked)}
           className="form-checkbox h-5 w-5 text-green-600"
+          aria-label="자동 반복 설정"
         />
       </div>
       <button
         onClick={startTimer}
         className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-transform duration-300"
+        aria-label="타이머 시작"
       >
         시작하기
       </button>
@@ -141,6 +147,7 @@ export default function TimerCard() {
               <button
                 onClick={pauseTimer}
                 className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform duration-300"
+                aria-label="일시정지"
               >
                 일시정지
               </button>
@@ -148,6 +155,7 @@ export default function TimerCard() {
               <button
                 onClick={resumeTimer}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform duration-300"
+                aria-label="재시작"
               >
                 재시작
               </button>
@@ -155,6 +163,7 @@ export default function TimerCard() {
             <button
               onClick={resetTimer}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-transform duration-300"
+              aria-label="타이머 리셋"
             >
               리셋
             </button>
@@ -162,7 +171,11 @@ export default function TimerCard() {
         </>
       )}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-green-800 dark:bg-opacity-70">
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-green-900 bg-opacity-50 dark:bg-green-800 dark:bg-opacity-70 animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="bg-white bg-opacity-95 p-6 rounded-lg shadow-xl border border-green-400 dark:bg-green-800 dark:border-green-600">
             <p className="text-xl font-bold text-green-800 dark:text-green-100">
               타이머 종료!
@@ -174,24 +187,28 @@ export default function TimerCard() {
               <button
                 onClick={() => recordFeedback("correct")}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-transform duration-300"
+                aria-label="자세 정상 피드백"
               >
                 네, 잘했어요
               </button>
               <button
                 onClick={() => recordFeedback("incorrect")}
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-transform duration-300"
+                aria-label="자세 교정 필요 피드백"
               >
                 아니요
               </button>
               <button
                 onClick={snoozeTimer}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-transform duration-300"
+                aria-label="스누즈"
               >
                 스누즈
               </button>
               <button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-transform duration-300"
+                aria-label="모달 닫기"
               >
                 닫기
               </button>
